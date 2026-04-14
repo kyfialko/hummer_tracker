@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Map — PROJECT NAME</title>
+  <title>Sighting Map</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
@@ -38,6 +38,14 @@
     .stat strong { display:block; font-family: var(--font-display); font-size: 1.75rem; font-weight: 500; color: var(--ink); text-transform: none; letter-spacing: -0.01em; }
     .leaflet-popup-content-wrapper { border-radius: 2px; background: var(--paper); }
     .leaflet-popup-tip { background: var(--paper); }
+    .map-note {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--ink-soft);
+      letter-spacing: 0.05em;
+      margin-top: 1rem;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
@@ -51,7 +59,7 @@
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
       <li><a href="submit.html">Submit Sighting</a></li>
-      <li><a href="map.html">Live Map</a></li>
+      <li><a href="map.html">Map</a></li>
       <li><a href="birds.html">Meet the Birds</a></li>
       <li><a href="team.html">The Team</a></li>
     </ul>
@@ -60,21 +68,21 @@
 
 <main class="container">
   <section class="page-header">
-    <div class="page-eyebrow">Live · Station-wide</div>
+    <div class="page-eyebrow">Published sightings</div>
     <h1 class="page-title">Sightings <em>map</em>.</h1>
-    <p class="page-lede">Every pin is an observation logged by a member of the station this season. Click any pin for details.</p>
+    <p class="page-lede">Each pin is an observation that has been reviewed and published. Updated most evenings.</p>
   </section>
 
   <div class="stat-row">
-    <div class="stat">Total sightings<strong id="statTotal">0</strong></div>
-    <div class="stat">Broad-tailed<strong id="statBT">0</strong></div>
-    <div class="stat">Rufous<strong id="statRU">0</strong></div>
-    <div class="stat">Color-marked<strong id="statMarked">0</strong></div>
+    <div class="stat">Total sightings<strong id="statTotal">—</strong></div>
+    <div class="stat">Broad-tailed<strong id="statBT">—</strong></div>
+    <div class="stat">Rufous<strong id="statRU">—</strong></div>
+    <div class="stat">Color-marked<strong id="statMarked">—</strong></div>
   </div>
 
   <div id="map"></div>
 
-  <p class="meta" style="margin-top:1rem; text-align:center;">Don't see your sighting? <a href="submit.html">Submit one →</a></p>
+  <p class="map-note">Submitted a sighting that's not showing up yet? Observations are reviewed and added to the map in the evening. <a href="submit.html">Submit another →</a></p>
 </main>
 
 <footer class="footer">
@@ -82,12 +90,7 @@
 </footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/store.js"></script>
 <script>
-  // Merge seeded + session-submitted sightings
-  const sessionSightings = JSON.parse(sessionStorage.getItem('rmbl_sightings') || '[]');
-  const allSightings = [...RMBL.sightings, ...sessionSightings];
-
   // Species color palette
   const speciesColor = {
     'Broad-tailed Hummingbird': '#2d4a2b',
@@ -97,40 +100,12 @@
   };
   const defaultColor = '#6b7a4f';
 
-  // Initialize map centered on Gothic, CO
+  // Map
   const map = L.map('map').setView([38.9575, -106.9903], 14);
-
   L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     attribution: 'Map data: © OpenStreetMap contributors, SRTM | style: © OpenTopoMap',
     maxZoom: 17
   }).addTo(map);
-
-  // Plot pins
-  allSightings.forEach(s => {
-    const color = speciesColor[s.species] || defaultColor;
-    const marker = L.circleMarker([s.lat, s.lng], {
-      radius: 9,
-      fillColor: color,
-      color: '#f4ede0',
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 0.9
-    }).addTo(map);
-
-    const when = s.time ? new Date(s.time).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : 'time unknown';
-    const sexLabel = s.sex === 'M' ? 'Male' : s.sex === 'F' ? 'Female' : 'Sex unknown';
-    const markBadge = s.colormark ? '<span class="tag">color-marked</span>' : '';
-
-    marker.bindPopup(`
-      <div class="popup-content">
-        <div class="meta">${when}</div>
-        <h4>${s.species}</h4>
-        <div style="margin-bottom:0.4rem;">${sexLabel} · obs. ${s.observer || 'anon.'}</div>
-        <div>${markBadge}</div>
-        ${s.notes ? `<div style="margin-top:0.5rem; font-style:italic;">${s.notes}</div>` : ''}
-      </div>
-    `);
-  });
 
   // Legend
   const legend = L.control({ position: 'bottomright' });
@@ -147,11 +122,81 @@
   };
   legend.addTo(map);
 
-  // Stats
-  document.getElementById('statTotal').textContent = allSightings.length;
-  document.getElementById('statBT').textContent = allSightings.filter(s => s.species === 'Broad-tailed Hummingbird').length;
-  document.getElementById('statRU').textContent = allSightings.filter(s => s.species === 'Rufous Hummingbird').length;
-  document.getElementById('statMarked').textContent = allSightings.filter(s => s.colormark).length;
+  // Tiny CSV parser (handles simple quoted fields)
+  function parseCSV(text) {
+    const lines = text.trim().split(/\r?\n/);
+    const headers = lines[0].split(',').map(h => h.trim());
+    return lines.slice(1).map(line => {
+      // Handle quoted commas
+      const vals = [];
+      let cur = '', inQ = false;
+      for (const ch of line) {
+        if (ch === '"') inQ = !inQ;
+        else if (ch === ',' && !inQ) { vals.push(cur); cur = ''; }
+        else cur += ch;
+      }
+      vals.push(cur);
+      const row = {};
+      headers.forEach((h, i) => row[h] = (vals[i] || '').trim());
+      return row;
+    });
+  }
+
+  // Load sightings from CSV, bust cache so edits appear fast
+  fetch('sightings.csv?v=' + Date.now())
+    .then(r => r.text())
+    .then(text => {
+      const sightings = parseCSV(text);
+
+      let marked = 0, bt = 0, ru = 0;
+
+      sightings.forEach(s => {
+        const lat = parseFloat(s.lat);
+        const lng = parseFloat(s.lng);
+        if (isNaN(lat) || isNaN(lng)) return;
+
+        if (s.species === 'Broad-tailed Hummingbird') bt++;
+        if (s.species === 'Rufous Hummingbird') ru++;
+        if (s.colormark && s.colormark !== 'no' && s.colormark !== '') marked++;
+
+        const color = speciesColor[s.species] || defaultColor;
+        const marker = L.circleMarker([lat, lng], {
+          radius: 9,
+          fillColor: color,
+          color: '#f4ede0',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.9
+        }).addTo(map);
+
+        const when = s.date + (s.time ? ' · ' + s.time : '');
+        const sexLabel = s.sex === 'M' ? 'Male' : s.sex === 'F' ? 'Female' : '';
+        const markBadge = (s.colormark && s.colormark !== 'no' && s.colormark !== '')
+          ? `<span class="tag">color-mark: ${s.colormark}</span>` : '';
+        const birdIdLine = s.bird_id ? `<div style="font-family:var(--font-display); font-style:italic; color:var(--rust); margin-bottom:0.25rem;">${s.bird_id}</div>` : '';
+
+        marker.bindPopup(`
+          <div class="popup-content">
+            <div class="meta">${when}</div>
+            ${birdIdLine}
+            <h4>${s.species}</h4>
+            ${sexLabel ? `<div style="margin-bottom:0.4rem;">${sexLabel}${s.observer ? ' · obs. ' + s.observer : ''}</div>` : (s.observer ? `<div style="margin-bottom:0.4rem;">obs. ${s.observer}</div>` : '')}
+            <div>${markBadge}</div>
+            ${s.notes ? `<div style="margin-top:0.5rem; font-style:italic;">${s.notes}</div>` : ''}
+          </div>
+        `);
+      });
+
+      document.getElementById('statTotal').textContent = sightings.length;
+      document.getElementById('statBT').textContent = bt;
+      document.getElementById('statRU').textContent = ru;
+      document.getElementById('statMarked').textContent = marked;
+    })
+    .catch(err => {
+      console.error('Could not load sightings.csv:', err);
+      document.getElementById('statTotal').textContent = '0';
+    });
 </script>
 </body>
 </html>
+
