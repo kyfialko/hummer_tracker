@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Map — RMBL Hummingbird Watch</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    #map {
+      height: 70vh;
+      min-height: 500px;
+      border: 1px solid var(--line);
+      box-shadow: 0 4px 20px var(--shadow);
+    }
+    .legend {
+      background: var(--paper);
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--line);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      line-height: 1.8;
+      box-shadow: 0 2px 8px var(--shadow);
+    }
+    .legend .sw { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: middle; border: 1.5px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,0.2); }
+    .popup-content { font-family: var(--font-body); font-size: 0.85rem; }
+    .popup-content h4 { font-family: var(--font-display); font-size: 1.1rem; font-weight: 500; margin-bottom: 0.25rem; color: var(--ink); }
+    .popup-content .meta { font-family: var(--font-mono); font-size: 0.65rem; letter-spacing: 0.1em; color: var(--ink-soft); text-transform: uppercase; margin-bottom: 0.5rem; }
+    .popup-content .tag { display: inline-block; padding: 2px 6px; background: var(--sun); color: var(--ink); font-size: 0.7rem; font-family: var(--font-mono); margin-right: 4px; }
+    .stat-row {
+      display: flex; gap: 2rem; flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+      padding: 1rem 1.5rem;
+      background: rgba(255,255,255,0.4);
+      border: 1px solid var(--line);
+    }
+    .stat { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.1em; }
+    .stat strong { display:block; font-family: var(--font-display); font-size: 1.75rem; font-weight: 500; color: var(--ink); text-transform: none; letter-spacing: -0.01em; }
+    .leaflet-popup-content-wrapper { border-radius: 2px; background: var(--paper); }
+    .leaflet-popup-tip { background: var(--paper); }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      Hummingbird Watch
+      <small>RMBL · Gothic, Colorado</small>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Field Log</a></li>
+      <li><a href="submit.html">Submit Sighting</a></li>
+      <li><a href="map.html">Live Map</a></li>
+      <li><a href="birds.html">Meet the Birds</a></li>
+      <li><a href="team.html">The Team</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="container">
+  <section class="page-header">
+    <div class="page-eyebrow">Live · Station-wide</div>
+    <h1 class="page-title">Sightings <em>map</em>.</h1>
+    <p class="page-lede">Every pin is an observation logged by a member of the station this season. Click any pin for details.</p>
+  </section>
+
+  <div class="stat-row">
+    <div class="stat">Total sightings<strong id="statTotal">0</strong></div>
+    <div class="stat">Broad-tailed<strong id="statBT">0</strong></div>
+    <div class="stat">Rufous<strong id="statRU">0</strong></div>
+    <div class="stat">Color-marked<strong id="statMarked">0</strong></div>
+  </div>
+
+  <div id="map"></div>
+
+  <p class="meta" style="margin-top:1rem; text-align:center;">Don't see your sighting? <a href="submit.html">Submit one →</a></p>
+</main>
+
+<footer class="footer">
+  Rocky Mountain Biological Laboratory · Field season 2026
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/store.js"></script>
+<script>
+  // Merge seeded + session-submitted sightings
+  const sessionSightings = JSON.parse(sessionStorage.getItem('rmbl_sightings') || '[]');
+  const allSightings = [...RMBL.sightings, ...sessionSightings];
+
+  // Species color palette
+  const speciesColor = {
+    'Broad-tailed Hummingbird': '#2d4a2b',
+    'Rufous Hummingbird': '#b5502a',
+    'Calliope Hummingbird': '#d9a441',
+    'Black-chinned Hummingbird': '#3d4a36',
+  };
+  const defaultColor = '#6b7a4f';
+
+  // Initialize map centered on Gothic, CO
+  const map = L.map('map').setView([38.9575, -106.9903], 14);
+
+  L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: 'Map data: © OpenStreetMap contributors, SRTM | style: © OpenTopoMap',
+    maxZoom: 17
+  }).addTo(map);
+
+  // Plot pins
+  allSightings.forEach(s => {
+    const color = speciesColor[s.species] || defaultColor;
+    const marker = L.circleMarker([s.lat, s.lng], {
+      radius: 9,
+      fillColor: color,
+      color: '#f4ede0',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.9
+    }).addTo(map);
+
+    const when = s.time ? new Date(s.time).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) : 'time unknown';
+    const sexLabel = s.sex === 'M' ? 'Male' : s.sex === 'F' ? 'Female' : 'Sex unknown';
+    const markBadge = s.colormark ? '<span class="tag">color-marked</span>' : '';
+
+    marker.bindPopup(`
+      <div class="popup-content">
+        <div class="meta">${when}</div>
+        <h4>${s.species}</h4>
+        <div style="margin-bottom:0.4rem;">${sexLabel} · obs. ${s.observer || 'anon.'}</div>
+        <div>${markBadge}</div>
+        ${s.notes ? `<div style="margin-top:0.5rem; font-style:italic;">${s.notes}</div>` : ''}
+      </div>
+    `);
+  });
+
+  // Legend
+  const legend = L.control({ position: 'bottomright' });
+  legend.onAdd = () => {
+    const div = L.DomUtil.create('div', 'legend');
+    div.innerHTML = `
+      <div><span class="sw" style="background:#2d4a2b"></span>Broad-tailed</div>
+      <div><span class="sw" style="background:#b5502a"></span>Rufous</div>
+      <div><span class="sw" style="background:#d9a441"></span>Calliope</div>
+      <div><span class="sw" style="background:#3d4a36"></span>Black-chinned</div>
+      <div><span class="sw" style="background:#6b7a4f"></span>Other</div>
+    `;
+    return div;
+  };
+  legend.addTo(map);
+
+  // Stats
+  document.getElementById('statTotal').textContent = allSightings.length;
+  document.getElementById('statBT').textContent = allSightings.filter(s => s.species === 'Broad-tailed Hummingbird').length;
+  document.getElementById('statRU').textContent = allSightings.filter(s => s.species === 'Rufous Hummingbird').length;
+  document.getElementById('statMarked').textContent = allSightings.filter(s => s.colormark).length;
+</script>
+</body>
+</html>

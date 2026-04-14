@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit a Sighting — RMBL Hummingbird Watch</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      Hummingbird Watch
+      <small>RMBL · Gothic, Colorado</small>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Field Log</a></li>
+      <li><a href="submit.html">Submit Sighting</a></li>
+      <li><a href="map.html">Live Map</a></li>
+      <li><a href="birds.html">Meet the Birds</a></li>
+      <li><a href="team.html">The Team</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="container-narrow">
+  <section class="page-header">
+    <div class="page-eyebrow">Form · 001</div>
+    <h1 class="page-title">Log a <em>sighting</em>.</h1>
+    <p class="page-lede">Fill in what you observed. Only species is required — everything else is useful but optional.</p>
+  </section>
+
+  <form id="sightingForm">
+    <div class="form-grid">
+
+      <div class="field full">
+        <label>Photo of the bird <span class="hint">(optional)</span></label>
+        <label class="file-drop" id="birdPhotoDrop">
+          <span id="birdPhotoLabel">Click to upload a photo or screenshot</span>
+          <input type="file" accept="image/*" id="birdPhoto" hidden>
+        </label>
+      </div>
+
+      <div class="field full">
+        <label>Species <span class="req">*</span></label>
+        <select id="species" required>
+          <option value="">— select species —</option>
+          <option>Broad-tailed Hummingbird</option>
+          <option>Rufous Hummingbird</option>
+          <option>Calliope Hummingbird</option>
+          <option>Black-chinned Hummingbird</option>
+          <option>Unknown hummingbird</option>
+          <option>Other (note below)</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Sex</label>
+        <div class="radio-row">
+          <label><input type="radio" name="sex" value="M"> Male</label>
+          <label><input type="radio" name="sex" value="F"> Female</label>
+          <label><input type="radio" name="sex" value="?" checked> Unknown</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Color mark?</label>
+        <div class="radio-row">
+          <label><input type="radio" name="colormark" value="yes"> Yes</label>
+          <label><input type="radio" name="colormark" value="no" checked> No</label>
+          <label><input type="radio" name="colormark" value="?"> Couldn't tell</label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Latitude</label>
+        <input type="number" step="any" id="lat" placeholder="38.9575">
+      </div>
+      <div class="field">
+        <label>Longitude</label>
+        <input type="number" step="any" id="lng" placeholder="-106.9903">
+      </div>
+      <div class="field full">
+        <button type="button" class="btn btn-ghost" id="useLocation" style="font-size:0.8rem; padding: 0.4rem 0.9rem;">Use my current location</button>
+        <span id="locStatus" class="hint" style="margin-left:0.75rem;"></span>
+      </div>
+
+      <div class="field full">
+        <label>Time of observation</label>
+        <input type="datetime-local" id="time">
+      </div>
+
+      <div class="field full">
+        <label>Photo of the flower <span class="hint">(if it was visiting one)</span></label>
+        <label class="file-drop" id="flowerPhotoDrop">
+          <span id="flowerPhotoLabel">Click to upload flower photo</span>
+          <input type="file" accept="image/*" id="flowerPhoto" hidden>
+        </label>
+      </div>
+
+      <div class="field full">
+        <label>Your name / initials</label>
+        <input type="text" id="observer" placeholder="K.">
+      </div>
+
+      <div class="field full">
+        <label>Notes</label>
+        <textarea id="notes" placeholder="Behavior, habitat, anything else worth recording…"></textarea>
+      </div>
+
+      <div class="field full">
+        <button type="submit" class="btn">Submit sighting</button>
+        <span id="formStatus" class="hint" style="margin-left:1rem;"></span>
+      </div>
+
+    </div>
+  </form>
+</main>
+
+<footer class="footer">
+  Rocky Mountain Biological Laboratory · Field season 2026
+</footer>
+
+<script src="js/store.js"></script>
+<script>
+  // Default time to now
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('time').value = now.toISOString().slice(0, 16);
+
+  // File input labels
+  function wireFile(inputId, labelId, dropId) {
+    const input = document.getElementById(inputId);
+    const label = document.getElementById(labelId);
+    const drop = document.getElementById(dropId);
+    input.addEventListener('change', () => {
+      if (input.files[0]) {
+        label.textContent = '✓ ' + input.files[0].name;
+        drop.classList.add('has-file');
+      }
+    });
+  }
+  wireFile('birdPhoto', 'birdPhotoLabel', 'birdPhotoDrop');
+  wireFile('flowerPhoto', 'flowerPhotoLabel', 'flowerPhotoDrop');
+
+  // Geolocation
+  document.getElementById('useLocation').addEventListener('click', () => {
+    const status = document.getElementById('locStatus');
+    if (!navigator.geolocation) { status.textContent = 'Geolocation not supported.'; return; }
+    status.textContent = 'Locating…';
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        document.getElementById('lat').value = pos.coords.latitude.toFixed(6);
+        document.getElementById('lng').value = pos.coords.longitude.toFixed(6);
+        status.textContent = '✓ location captured';
+      },
+      () => { status.textContent = 'Could not get location. Enter manually.'; }
+    );
+  });
+
+  // Submit
+  document.getElementById('sightingForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const species = document.getElementById('species').value;
+    if (!species) return;
+
+    const sighting = {
+      species,
+      sex: document.querySelector('input[name="sex"]:checked')?.value || '?',
+      colormark: document.querySelector('input[name="colormark"]:checked')?.value === 'yes',
+      lat: parseFloat(document.getElementById('lat').value) || 38.9575,
+      lng: parseFloat(document.getElementById('lng').value) || -106.9903,
+      time: document.getElementById('time').value,
+      observer: document.getElementById('observer').value || 'anon.',
+      notes: document.getElementById('notes').value,
+      birdPhoto: document.getElementById('birdPhoto').files[0]?.name || null,
+      flowerPhoto: document.getElementById('flowerPhoto').files[0]?.name || null
+    };
+
+    // Persist across pages for this session
+    const session = JSON.parse(sessionStorage.getItem('rmbl_sightings') || '[]');
+    session.push({ ...sighting, id: 'u' + Date.now() });
+    sessionStorage.setItem('rmbl_sightings', JSON.stringify(session));
+
+    document.getElementById('formStatus').textContent = '✓ Submitted. View it on the map.';
+    document.getElementById('formStatus').style.color = 'var(--forest)';
+    setTimeout(() => { window.location.href = 'map.html'; }, 900);
+  });
+</script>
+</body>
+</html>

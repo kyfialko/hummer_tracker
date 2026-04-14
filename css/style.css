@@ -1,0 +1,266 @@
+/* =========================================================
+   Field Notebook aesthetic
+   Warm paper, forest ink, serif display, monospace data
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;1,9..144,400&family=JetBrains+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --paper: #f4ede0;
+  --paper-dark: #e8dcc4;
+  --ink: #1c2a1e;
+  --ink-soft: #3d4a36;
+  --forest: #2d4a2b;
+  --moss: #6b7a4f;
+  --rust: #b5502a;
+  --sun: #d9a441;
+  --line: #c9bfa8;
+  --shadow: rgba(28, 42, 30, 0.12);
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.55;
+  background-image:
+    radial-gradient(circle at 20% 10%, rgba(181, 80, 42, 0.04) 0%, transparent 40%),
+    radial-gradient(circle at 80% 90%, rgba(45, 74, 43, 0.05) 0%, transparent 45%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.1 0 0 0 0 0.05 0 0 0 0.03 0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+a { color: var(--forest); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--rust); }
+
+/* ---------- Navigation ---------- */
+.nav {
+  border-bottom: 1px solid var(--line);
+  background: var(--paper);
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(4px);
+}
+.nav-inner {
+  max-width: 1200px; margin: 0 auto;
+  padding: 1rem 2rem;
+  display: flex; align-items: baseline; justify-content: space-between;
+  flex-wrap: wrap; gap: 1rem;
+}
+.nav-brand {
+  font-family: var(--font-display);
+  font-size: 1.35rem; font-weight: 500;
+  font-style: italic;
+  letter-spacing: -0.01em;
+}
+.nav-brand small {
+  display: block; font-size: 0.7rem; font-style: normal;
+  font-family: var(--font-mono); letter-spacing: 0.1em;
+  color: var(--ink-soft); text-transform: uppercase;
+}
+.nav-links { display: flex; gap: 1.75rem; list-style: none; }
+.nav-links a {
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ink-soft);
+  padding-bottom: 2px;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s;
+}
+.nav-links a:hover, .nav-links a.active {
+  color: var(--ink);
+  border-bottom-color: var(--rust);
+}
+
+/* ---------- Layout ---------- */
+.container {
+  max-width: 1200px; margin: 0 auto;
+  padding: 2rem;
+}
+.container-narrow {
+  max-width: 760px; margin: 0 auto;
+  padding: 2rem;
+}
+
+/* ---------- Hero / page headers ---------- */
+.page-header {
+  padding: 4rem 0 3rem;
+  border-bottom: 1px dashed var(--line);
+  margin-bottom: 3rem;
+}
+.page-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--rust);
+  margin-bottom: 1rem;
+}
+.page-title {
+  font-family: var(--font-display);
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.page-title em {
+  font-style: italic;
+  color: var(--forest);
+  font-weight: 500;
+}
+.page-lede {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  margin-top: 1.5rem;
+  color: var(--ink-soft);
+  max-width: 60ch;
+  line-height: 1.5;
+}
+
+/* ---------- Typography blocks ---------- */
+h2 {
+  font-family: var(--font-display);
+  font-size: 1.75rem; font-weight: 500;
+  letter-spacing: -0.01em;
+  margin: 2.5rem 0 1rem;
+}
+h3 {
+  font-family: var(--font-display);
+  font-size: 1.25rem; font-weight: 500;
+  margin: 1.5rem 0 0.5rem;
+}
+p { margin-bottom: 1rem; max-width: 65ch; }
+
+.meta {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+}
+
+/* ---------- Buttons & forms ---------- */
+.btn {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.02em;
+  padding: 0.75rem 1.5rem;
+  border: 1.5px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-decoration: none;
+}
+.btn:hover { background: var(--rust); border-color: var(--rust); color: var(--paper); }
+.btn-ghost {
+  background: transparent; color: var(--ink);
+}
+.btn-ghost:hover { background: var(--ink); color: var(--paper); }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem 2rem;
+}
+.field { display: flex; flex-direction: column; gap: 0.4rem; }
+.field.full { grid-column: 1 / -1; }
+.field label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.field label .req { color: var(--rust); }
+.field input[type="text"],
+.field input[type="number"],
+.field input[type="datetime-local"],
+.field select,
+.field textarea {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-bottom: 2px solid var(--ink-soft);
+  color: var(--ink);
+  border-radius: 0;
+  transition: border-color 0.15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none;
+  border-bottom-color: var(--rust);
+}
+.field textarea { min-height: 80px; resize: vertical; }
+.field .hint {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.radio-row { display: flex; gap: 1.5rem; padding-top: 0.4rem; }
+.radio-row label {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+  display: flex; gap: 0.4rem; align-items: center;
+  cursor: pointer;
+}
+.radio-row input[type="radio"] { accent-color: var(--forest); }
+
+.file-drop {
+  border: 1.5px dashed var(--line);
+  padding: 1.25rem;
+  text-align: center;
+  cursor: pointer;
+  background: rgba(255,255,255,0.3);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  transition: all 0.15s;
+}
+.file-drop:hover { border-color: var(--rust); color: var(--rust); }
+.file-drop.has-file { border-color: var(--forest); color: var(--forest); border-style: solid; }
+
+/* ---------- Footer ---------- */
+.footer {
+  margin-top: 6rem;
+  padding: 2rem;
+  border-top: 1px solid var(--line);
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  letter-spacing: 0.05em;
+}
+
+/* ---------- Utilities ---------- */
+.divider-orn {
+  text-align: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  color: var(--moss);
+  margin: 2rem 0;
+  letter-spacing: 0.5em;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 640px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .nav-inner { padding: 1rem; }
+  .nav-links { gap: 1rem; font-size: 0.8rem; }
+  .container, .container-narrow { padding: 1.5rem 1rem; }
+}

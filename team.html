@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Team — RMBL Hummingbird Watch</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 2.5rem;
+      margin-top: 2rem;
+    }
+    .member {
+      text-align: left;
+    }
+    .member .portrait {
+      width: 100%; aspect-ratio: 1;
+      background: var(--paper-dark);
+      border: 1px dashed var(--line);
+      margin-bottom: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.7rem; color: var(--ink-soft);
+      letter-spacing: 0.15em; text-transform: uppercase;
+    }
+    .member h3 { margin-top: 0; margin-bottom: 0.25rem; }
+    .member .role {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--rust);
+      margin-bottom: 0.75rem;
+    }
+    .member p { font-size: 0.9rem; }
+    .placeholder-note {
+      background: rgba(217, 164, 65, 0.15);
+      border-left: 3px solid var(--sun);
+      padding: 1rem 1.25rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--ink-soft);
+      margin-bottom: 2rem;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      Hummingbird Watch
+      <small>RMBL · Gothic, Colorado</small>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Field Log</a></li>
+      <li><a href="submit.html">Submit Sighting</a></li>
+      <li><a href="map.html">Live Map</a></li>
+      <li><a href="birds.html">Meet the Birds</a></li>
+      <li><a href="team.html">The Team</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="container">
+  <section class="page-header">
+    <div class="page-eyebrow">About</div>
+    <h1 class="page-title">The <em>team</em>.</h1>
+    <p class="page-lede">Researchers, field assistants, and collaborators keeping an eye on the hummingbirds of the East River valley.</p>
+  </section>
+
+  <div class="placeholder-note">
+    ✎ Placeholder page — add team bios, portraits, and contact info as you finalize your crew.
+  </div>
+
+  <div class="team-grid">
+
+    <div class="member">
+      <div class="portrait">portrait · to come</div>
+      <h3>Researcher name</h3>
+      <div class="role">Principal investigator</div>
+      <p>Short bio to come — research focus, years at RMBL, and home institution.</p>
+    </div>
+
+    <div class="member">
+      <div class="portrait">portrait · to come</div>
+      <h3>Researcher name</h3>
+      <div class="role">Field lead</div>
+      <p>Short bio to come.</p>
+    </div>
+
+    <div class="member">
+      <div class="portrait">portrait · to come</div>
+      <h3>Researcher name</h3>
+      <div class="role">Field assistant</div>
+      <p>Short bio to come.</p>
+    </div>
+
+    <div class="member">
+      <div class="portrait">portrait · to come</div>
+      <h3>Researcher name</h3>
+      <div class="role">Collaborator</div>
+      <p>Short bio to come.</p>
+    </div>
+
+  </div>
+
+  <div class="divider-orn">· · ·</div>
+
+  <h2>Get in touch</h2>
+  <p>Questions about the project, the data, or how to join the station's observation effort? Reach out at <a href="mailto:hello@example.org">hello@example.org</a> (placeholder).</p>
+</main>
+
+<footer class="footer">
+  Rocky Mountain Biological Laboratory · Field season 2026
+</footer>
+
+<script src="js/store.js"></script>
+</body>
+</html>
