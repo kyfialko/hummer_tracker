@@ -1,6 +1,6 @@
-# RMBL Hummingbird Watch — Mock Site
+# RMBL Hummingbird Watch — test site
 
-A static website mock for collecting and mapping hummingbird sightings from members of a field station. Five pages:
+Test website for logging bird observations. Created with Claude Code. Five pages:
 
 - **index.html** — landing / field log intro
 - **submit.html** — sighting submission form
@@ -8,13 +8,11 @@ A static website mock for collecting and mapping hummingbird sightings from memb
 - **birds.html** — "Meet the Birds" (placeholder cards)
 - **team.html** — about the team (placeholder cards)
 
-No build step. No framework. Pure HTML/CSS/JS so it runs on GitHub Pages as-is.
-
 ---
 
 ## Running locally
 
-Just open `index.html` in a browser. Or, for the submit→map handoff to work reliably (uses `sessionStorage`), serve it:
+Open `index.html` in a browser. Or, for the submit→map handoff to work reliably (uses `sessionStorage`), serve it:
 
 ```bash
 cd rmbl-site
@@ -24,10 +22,6 @@ python3 -m http.server 8000
 
 ---
 
-## Deploying to GitHub Pages
-
-1. Create a new GitHub repo (e.g. `rmbl-hummingbirds`).
-2. Drop all these files into the repo root and push.
 3. In the repo, go to **Settings → Pages**.
 4. Under "Source", select **Deploy from a branch** → `main` → `/ (root)` → Save.
 5. In ~1 minute, your site will be live at `https://<your-username>.github.io/rmbl-hummingbirds/`.
@@ -83,14 +77,3 @@ Pick any of these. All of them require only a tiny change to the form's submit h
 - **Seed pins for the map:** `js/store.js`, `seedSightings` array.
 - **Bird / team cards:** `birds.html` and `team.html`, fill in the placeholder cards directly.
 
----
-
-## Design notes
-
-The aesthetic is deliberately "field notebook" rather than "startup dashboard":
-- Warm off-white paper background with subtle noise
-- Fraunces (display serif) for headers, Inter for body, JetBrains Mono for metadata
-- Forest green, rust, and mustard accents — pulled from the Gunnison County palette
-- Dashed rules and monospaced eyebrow labels to evoke notebook entries
-
-If you want a different direction (more minimal, more scientific/formal, brighter/playful), it's all CSS variables — easy to re-skin.
