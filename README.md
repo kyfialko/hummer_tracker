@@ -24,7 +24,6 @@ python3 -m http.server 8000
 
 3. In the repo, go to **Settings → Pages**.
 4. Under "Source", select **Deploy from a branch** → `main` → `/ (root)` → Save.
-5. In ~1 minute, your site will be live at `https://<your-username>.github.io/rmbl-hummingbirds/`.
 
 ---
 
