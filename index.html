@@ -3,19 +3,67 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RMBL Hummingbird Watch — Field Log</title>
+  <title>Hummingbird Field Log</title>
   <link rel="stylesheet" href="css/style.css">
+  <style>
+  .cta-wrap {
+    margin: 3rem 0 2rem;
+    text-align: center;
+  }
+  .btn-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    padding: 1.25rem 2.5rem;
+    background: var(--rust);
+    color: var(--paper);
+    text-decoration: none;
+    border: 2px solid var(--rust);
+    box-shadow: 0 6px 0 var(--ink);
+    transition: all 0.15s ease;
+  }
+  .btn-cta:hover {
+    background: #c95a30;
+    color: var(--paper);
+    transform: translateY(2px);
+    box-shadow: 0 4px 0 var(--ink);
+  }
+  .btn-cta:active {
+    transform: translateY(6px);
+    box-shadow: 0 0 0 var(--ink);
+  }
+  .cta-arrow {
+    display: inline-block;
+    transition: transform 0.2s ease;
+  }
+  .btn-cta:hover .cta-arrow {
+    transform: translateX(6px);
+  }
+  .cta-secondary {
+    display: block;
+    margin-top: 1.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+  }
+</style>
 </head>
 <body>
 
 <nav class="nav">
   <div class="nav-inner">
     <div class="nav-brand">
-      Hummingbird Watch
+      Hummingbird Log
       <small>RMBL · Gothic, Colorado</small>
     </div>
     <ul class="nav-links">
-      <li><a href="index.html">Field Log</a></li>
+      <li><a href="index.html">Home</a></li>
       <li><a href="submit.html">Submit Sighting</a></li>
       <li><a href="map.html">Live Map</a></li>
       <li><a href="birds.html">Meet the Birds</a></li>
@@ -28,29 +76,32 @@
   <section class="page-header">
     <div class="page-eyebrow">Field Season 2026 · vol. I</div>
     <h1 class="page-title">A <em>collective</em> notebook for<br>the station's hummingbirds.</h1>
-    <p class="page-lede">Every observation a member of the station logs here drops a pin on our shared map. The idea is simple: see a bird, record it, and help us build a picture of how the flock moves through Gothic this summer.</p>
+    <p class="page-lede">We want to understand how hummingbirds are interacting with their environment: where do they go, how do they spend their time and what resources are important to them? </p>
   </section>
 
-  <h2>How it works</h2>
-  <p>Spot a hummingbird — at a feeder, on a flower, banded, unbanded, anywhere on station. Open <a href="submit.html">Submit Sighting</a>, fill in what you saw, snap a photo if you can, and submit. Your pin appears on the <a href="map.html">Live Map</a>.</p>
-
-  <div class="divider-orn">· · ·</div>
-
-  <h2>What to record</h2>
-  <p>The form asks for species, sex, whether the bird has a color mark, GPS coordinates, time, and photos of the bird and any flower it was visiting. All fields except species are optional — log what you have, skip what you don't.</p>
-
-  <h2>Why it matters</h2>
-  <p>The 2025–2026 winter brought unusually low snowpack to the East River valley, and we expect flowering phenology to shift early. Distributed sightings from the full station community give us temporal and spatial resolution no single observer can match.</p>
-
-  <p style="margin-top:2rem;">
+<div class="cta-wrap">
+  <a href="submit.html" class="btn-cta">
+    Log a Sighting
+    <span class="cta-arrow">→</span>
+  </a>
+  <a href="map.html" class="cta-secondary">or view the map</a>
+</div>
+  
+   <p style="margin-top:2rem;">
     <a href="submit.html" class="btn">Submit a sighting →</a>
     &nbsp;
     <a href="map.html" class="btn btn-ghost">View the map</a>
   </p>
 </main>
+  
+  <h2>How it works</h2>
+  <p>Spot a hummingbird — at a feeder, on a flower, banded, unbanded, anywhere on station. Open <a href="submit.html">Submit Sighting</a>, fill in what you saw, snap a photo if you can, and submit. Your pin appears on the <a href="map.html">Live Map</a>.</p>
+
+  <div class="divider-orn">· · ·</div>
+
 
 <footer class="footer">
-  Rocky Mountain Biological Laboratory · Field season 2026
+  Stoddard Lab · Field season 2026
 </footer>
 
 <script src="js/store.js"></script>
