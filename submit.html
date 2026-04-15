@@ -110,7 +110,7 @@
       </div>
 
       <div class="field full">
-        <button type="submit" class="btn">Submit sighting</button>
+        <button type="submit" class="btn" id="submitBtn">Submit sighting</button>
         <span id="formStatus" class="hint" style="margin-left:1rem;"></span>
       </div>
 
@@ -122,8 +122,30 @@
   Stoddard Lab · Field season 2026
 </footer>
 
-<script src="js/store.js"></script>
-<script>
+<!--
+  Assumes js/store.js exports a Supabase client as `window.supabase`,
+  initialized with your project URL and anon key.
+
+  Assumed schema for the `sightings` table:
+    id            uuid (default gen_random_uuid(), primary key)
+    species       text
+    sex           text
+    colormark     boolean
+    lat           double precision
+    lng           double precision
+    observed_at   timestamptz
+    observer      text
+    notes         text
+    bird_photo    text   (storage path in sighting-photos bucket)
+    flower_photo  text   (storage path in sighting-photos bucket)
+    created_at    timestamptz default now()
+
+  Assumed storage bucket: `sighting-photos` (public read, anon insert).
+-->
+<script type="module" src="js/store.js"></script>
+<script type="module">
+  import { supabase } from './js/store.js';
+
   // Default time to now
   const now = new Date();
   now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -159,33 +181,70 @@
     );
   });
 
+  // Upload a photo to Supabase Storage; return the storage path or null.
+  async function uploadPhoto(file, prefix) {
+    if (!file) return null;
+    const ext = file.name.split('.').pop();
+    const path = `${prefix}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+    const { error } = await supabase.storage
+      .from('sighting-photos')
+      .upload(path, file, { cacheControl: '3600', upsert: false });
+    if (error) throw error;
+    return path;
+  }
+
   // Submit
-  document.getElementById('sightingForm').addEventListener('submit', e => {
+  document.getElementById('sightingForm').addEventListener('submit', async e => {
     e.preventDefault();
-    const species = document.getElementById('species').value;
-    if (!species) return;
+    const form = e.target;
+    const status = document.getElementById('formStatus');
+    const submitBtn = document.getElementById('submitBtn');
 
-    const sighting = {
-      species,
-      sex: document.querySelector('input[name="sex"]:checked')?.value || '?',
-      colormark: document.querySelector('input[name="colormark"]:checked')?.value === 'yes',
-      lat: parseFloat(document.getElementById('lat').value) || 38.9575,
-      lng: parseFloat(document.getElementById('lng').value) || -106.9903,
-      time: document.getElementById('time').value,
-      observer: document.getElementById('observer').value || 'anon.',
-      notes: document.getElementById('notes').value,
-      birdPhoto: document.getElementById('birdPhoto').files[0]?.name || null,
-      flowerPhoto: document.getElementById('flowerPhoto').files[0]?.name || null
-    };
+    if (!form.checkValidity()) {
+      form.reportValidity();
+      return;
+    }
 
-    // Persist across pages for this session
-    const session = JSON.parse(sessionStorage.getItem('rmbl_sightings') || '[]');
-    session.push({ ...sighting, id: 'u' + Date.now() });
-    sessionStorage.setItem('rmbl_sightings', JSON.stringify(session));
+    submitBtn.disabled = true;
+    status.style.color = '';
+    status.textContent = 'Uploading…';
 
-    document.getElementById('formStatus').textContent = '✓ Submitted. View it on the map.';
-    document.getElementById('formStatus').style.color = 'var(--forest)';
-    setTimeout(() => { window.location.href = 'map.html'; }, 900);
+    try {
+      const birdFile = document.getElementById('birdPhoto').files[0];
+      const flowerFile = document.getElementById('flowerPhoto').files[0];
+
+      const [birdPath, flowerPath] = await Promise.all([
+        uploadPhoto(birdFile, 'bird'),
+        uploadPhoto(flowerFile, 'flower')
+      ]);
+
+      const sighting = {
+        species: document.getElementById('species').value,
+        sex: document.querySelector('input[name="sex"]:checked')?.value || '?',
+        colormark: document.querySelector('input[name="colormark"]:checked')?.value === 'yes',
+        lat: parseFloat(document.getElementById('lat').value) || 38.9575,
+        lng: parseFloat(document.getElementById('lng').value) || -106.9903,
+        observed_at: document.getElementById('time').value
+          ? new Date(document.getElementById('time').value).toISOString()
+          : new Date().toISOString(),
+        observer: document.getElementById('observer').value || 'anon.',
+        notes: document.getElementById('notes').value,
+        bird_photo: birdPath,
+        flower_photo: flowerPath
+      };
+
+      const { error } = await supabase.from('sightings').insert(sighting);
+      if (error) throw error;
+
+      status.textContent = '✓ Submitted. Redirecting to map…';
+      status.style.color = 'var(--forest)';
+      setTimeout(() => { window.location.href = 'map.html'; }, 900);
+    } catch (err) {
+      console.error(err);
+      status.textContent = '✗ Submission failed: ' + (err.message || 'unknown error');
+      status.style.color = 'crimson';
+      submitBtn.disabled = false;
+    }
   });
 </script>
 </body>
