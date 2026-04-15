@@ -142,9 +142,9 @@
 
   Assumed storage bucket: `sighting-photos` (public read, anon insert).
 -->
-<script type="module" src="js/store.js"></script>
-<script type="module">
-  import { supabase } from './js/store.js';
+<script src="js/store.js"></script>
+<script>
+  const supabase = window.supabase;
 
   // Default time to now
   const now = new Date();
