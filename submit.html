@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Submit a Sighting — PROJECT NAME</title>
+  <title>Submit a Sighting</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,9 +15,9 @@
       <small></small>
     </div>
     <ul class="nav-links">
-      <li><a href="index.html">Home</a></li>
+      <li><a href="index.html">Field Log</a></li>
       <li><a href="submit.html">Submit Sighting</a></li>
-      <li><a href="map.html">Map</a></li>
+      <li><a href="map.html">Live Map</a></li>
       <li><a href="birds.html">Meet the Birds</a></li>
       <li><a href="team.html">The Team</a></li>
     </ul>
@@ -27,15 +27,18 @@
 <main class="container-narrow">
   <section class="page-header">
     <div class="page-eyebrow">Form · 001</div>
-    <h1 class="page-title">Log a sighting.</h1>
-    <p class="page-lede">Description.</p>
+    <h1 class="page-title">Log a <em>sighting</em>.</h1>
+    <p class="page-lede">Only species is required — everything else is optional. The easiest submission is just a screenshot showing time/GPS/species plus a flower photo, and we'll extract the rest.</p>
   </section>
+
+  <!-- Connection status indicator -->
+  <div id="connStatus" style="font-family:var(--font-mono); font-size:0.75rem; color:var(--ink-soft); margin-bottom:1.5rem;"></div>
 
   <form id="sightingForm">
     <div class="form-grid">
 
       <div class="field full">
-        <label>Photo of the bird <span class="hint">(optional)</span></label>
+        <label>Photo or screenshot of the sighting <span class="hint">(showing time, GPS, species if possible)</span></label>
         <label class="file-drop" id="birdPhotoDrop">
           <span id="birdPhotoLabel">Click to upload a photo or screenshot</span>
           <input type="file" accept="image/*" id="birdPhoto" hidden>
@@ -74,11 +77,11 @@
       </div>
 
       <div class="field">
-        <label>Latitude</label>
+        <label>Latitude <span class="hint">(optional)</span></label>
         <input type="number" step="any" id="lat" placeholder="38.9575">
       </div>
       <div class="field">
-        <label>Longitude</label>
+        <label>Longitude <span class="hint">(optional)</span></label>
         <input type="number" step="any" id="lng" placeholder="-106.9903">
       </div>
       <div class="field full">
@@ -87,12 +90,12 @@
       </div>
 
       <div class="field full">
-        <label>Time of observation</label>
+        <label>Time of observation <span class="hint">(optional — if different from now)</span></label>
         <input type="datetime-local" id="time">
       </div>
 
       <div class="field full">
-        <label>Photo of the flower <span class="hint">(if it was visiting one)</span></label>
+        <label>Photo of the flower <span class="hint">(if it was visiting one — we'll ID it)</span></label>
         <label class="file-drop" id="flowerPhotoDrop">
           <span id="flowerPhotoLabel">Click to upload flower photo</span>
           <input type="file" accept="image/*" id="flowerPhoto" hidden>
@@ -100,8 +103,8 @@
       </div>
 
       <div class="field full">
-        <label>Your name / initials</label>
-        <input type="text" id="observer" placeholder="K.">
+        <label>Your name / initials <span class="hint">(optional — helps us track effort)</span></label>
+        <input type="text" id="observer" placeholder="e.g. KL">
       </div>
 
       <div class="field full">
@@ -122,29 +125,56 @@
   Stoddard Lab · Field season 2026
 </footer>
 
-<!--
-  Assumes js/store.js exports a Supabase client as `window.supabase`,
-  initialized with your project URL and anon key.
+<!-- ================================================================
+     Supabase JS v2 via CDN — official pattern from supabase docs
+     ================================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  Assumed schema for the `sightings` table:
-    id            uuid (default gen_random_uuid(), primary key)
-    species       text
-    sex           text
-    colormark     boolean
-    lat           double precision
-    lng           double precision
-    observed_at   timestamptz
-    observer      text
-    notes         text
-    bird_photo    text   (storage path in sighting-photos bucket)
-    flower_photo  text   (storage path in sighting-photos bucket)
-    created_at    timestamptz default now()
-
-  Assumed storage bucket: `sighting-photos` (public read, anon insert).
--->
-<script src="js/store.js"></script>
 <script>
-  const supabase = window.supabase;
+  // =================================================================
+  // SUPABASE CONFIG
+  // =================================================================
+  const SUPABASE_URL  = 'https://syedrbopvempvkgendpc.supabase.co';
+  const SUPABASE_KEY  = 'sb_publishable_slkJ1KRi4ZbV1MTd6NhHXg_4wTCPsUm';
+  const BUCKET_NAME   = 'sightings_photo';
+
+  // Official CDN pattern: the global `supabase` object has `createClient`
+  // We use a different variable name `_sb` to avoid shadowing the global
+  const { createClient } = supabase;
+  const _sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Quick connection check on page load
+  (async function checkConnection() {
+    const el = document.getElementById('connStatus');
+    try {
+      // Try a simple query — will fail if table not exposed or policies wrong,
+      // but the client itself being created means the library loaded fine
+      const { error } = await _sb.from('sightings').select('id', { count: 'exact', head: true });
+      if (error) {
+        // RLS might block SELECT (which is what we want!) — that's actually OK
+        // Error code 42501 = insufficient_privilege = RLS blocking reads = correct setup
+        if (error.code === '42501' || error.message.includes('permission')) {
+          el.textContent = '✓ Connected to database (read access correctly restricted)';
+          el.style.color = 'var(--forest)';
+        } else {
+          el.textContent = '⚠ Database connection issue: ' + error.message;
+          el.style.color = 'var(--rust)';
+          console.error('Supabase connection check error:', error);
+        }
+      } else {
+        el.textContent = '✓ Connected to database';
+        el.style.color = 'var(--forest)';
+      }
+    } catch (err) {
+      el.textContent = '✗ Could not connect to Supabase: ' + err.message;
+      el.style.color = 'var(--rust)';
+      console.error('Supabase init error:', err);
+    }
+  })();
+
+  // =================================================================
+  // UI WIRING
+  // =================================================================
 
   // Default time to now
   const now = new Date();
@@ -155,7 +185,7 @@
   function wireFile(inputId, labelId, dropId) {
     const input = document.getElementById(inputId);
     const label = document.getElementById(labelId);
-    const drop = document.getElementById(dropId);
+    const drop  = document.getElementById(dropId);
     input.addEventListener('change', () => {
       if (input.files[0]) {
         label.textContent = '✓ ' + input.files[0].name;
@@ -163,7 +193,7 @@
       }
     });
   }
-  wireFile('birdPhoto', 'birdPhotoLabel', 'birdPhotoDrop');
+  wireFile('birdPhoto',   'birdPhotoLabel',   'birdPhotoDrop');
   wireFile('flowerPhoto', 'flowerPhotoLabel', 'flowerPhotoDrop');
 
   // Geolocation
@@ -181,69 +211,157 @@
     );
   });
 
-  // Upload a photo to Supabase Storage; return the storage path or null.
+  // =================================================================
+  // IMAGE COMPRESSION
+  // Phones produce 3-5MB photos. This compresses to ~200-500KB.
+  // =================================================================
+  function compressImage(file, maxWidth = 1600, quality = 0.82) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const scale  = Math.min(1, maxWidth / img.width);
+          const w = Math.round(img.width  * scale);
+          const h = Math.round(img.height * scale);
+          const canvas = document.createElement('canvas');
+          canvas.width  = w;
+          canvas.height = h;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, w, h);
+          canvas.toBlob(
+            blob => blob ? resolve(blob) : reject(new Error('Compression failed')),
+            'image/jpeg',
+            quality
+          );
+        };
+        img.onerror = () => reject(new Error('Could not load image'));
+        img.src = e.target.result;
+      };
+      reader.onerror = () => reject(new Error('Could not read file'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // Upload a photo to the private bucket. Returns the storage path or null.
   async function uploadPhoto(file, prefix) {
     if (!file) return null;
-    const ext = file.name.split('.').pop();
-    const path = `${prefix}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-    const { error } = await supabase.storage
-      .from('sighting-photos')
-      .upload(path, file, { cacheControl: '3600', upsert: false });
-    if (error) throw error;
+
+    const statusEl = document.getElementById('formStatus');
+    statusEl.textContent = 'Compressing ' + prefix + ' photo…';
+
+    const compressed = await compressImage(file);
+    const timestamp  = Date.now();
+    const rand       = Math.random().toString(36).slice(2, 8);
+    const path       = prefix + '_' + timestamp + '_' + rand + '.jpg';
+
+    statusEl.textContent = 'Uploading ' + prefix + ' photo…';
+
+    const { data, error } = await _sb.storage
+      .from(BUCKET_NAME)
+      .upload(path, compressed, {
+        contentType: 'image/jpeg',
+        upsert: false
+      });
+
+    if (error) {
+      console.error('Upload error for ' + prefix + ':', error);
+      throw new Error('Photo upload failed (' + prefix + '): ' + error.message);
+    }
+
+    console.log('Uploaded ' + prefix + ' photo to:', path);
     return path;
   }
 
-  // Submit
+  // =================================================================
+  // FORM SUBMISSION
+  // =================================================================
   document.getElementById('sightingForm').addEventListener('submit', async e => {
     e.preventDefault();
-    const form = e.target;
+
+    const species = document.getElementById('species').value;
+    if (!species) return;
+
+    const btn    = document.getElementById('submitBtn');
     const status = document.getElementById('formStatus');
-    const submitBtn = document.getElementById('submitBtn');
 
-    if (!form.checkValidity()) {
-      form.reportValidity();
-      return;
-    }
-
-    submitBtn.disabled = true;
-    status.style.color = '';
-    status.textContent = 'Uploading…';
+    btn.disabled    = true;
+    btn.textContent = 'Submitting…';
+    status.style.color = 'var(--ink-soft)';
+    status.textContent = 'Starting submission…';
 
     try {
-      const birdFile = document.getElementById('birdPhoto').files[0];
+      // 1. Upload photos (if any)
+      const birdFile   = document.getElementById('birdPhoto').files[0];
       const flowerFile = document.getElementById('flowerPhoto').files[0];
 
-      const [birdPath, flowerPath] = await Promise.all([
-        uploadPhoto(birdFile, 'bird'),
-        uploadPhoto(flowerFile, 'flower')
-      ]);
+      let bird_photo_path   = null;
+      let flower_photo_path = null;
 
-      const sighting = {
-        species: document.getElementById('species').value,
-        sex: document.querySelector('input[name="sex"]:checked')?.value || '?',
-        colormark: document.querySelector('input[name="colormark"]:checked')?.value === 'yes',
-        lat: parseFloat(document.getElementById('lat').value) || 38.9575,
-        lng: parseFloat(document.getElementById('lng').value) || -106.9903,
-        observed_at: document.getElementById('time').value
-          ? new Date(document.getElementById('time').value).toISOString()
-          : new Date().toISOString(),
-        observer: document.getElementById('observer').value || 'anon.',
-        notes: document.getElementById('notes').value,
-        bird_photo: birdPath,
-        flower_photo: flowerPath
+      if (birdFile) {
+        bird_photo_path = await uploadPhoto(birdFile, 'bird');
+      }
+      if (flowerFile) {
+        flower_photo_path = await uploadPhoto(flowerFile, 'flower');
+      }
+
+      // 2. Build the row
+      status.textContent = 'Saving sighting…';
+
+      const latRaw  = document.getElementById('lat').value;
+      const lngRaw  = document.getElementById('lng').value;
+      const timeRaw = document.getElementById('time').value;
+
+      const row = {
+        species:           species,
+        sex:               document.querySelector('input[name="sex"]:checked')?.value || null,
+        colormark:         document.querySelector('input[name="colormark"]:checked')?.value || null,
+        lat:               latRaw  ? parseFloat(latRaw)  : null,
+        lng:               lngRaw  ? parseFloat(lngRaw)  : null,
+        observation_time:  timeRaw ? new Date(timeRaw).toISOString() : null,
+        observer:          document.getElementById('observer').value || null,
+        notes:             document.getElementById('notes').value   || null,
+        bird_photo_path:   bird_photo_path,
+        flower_photo_path: flower_photo_path
       };
 
-      const { error } = await supabase.from('sightings').insert(sighting);
-      if (error) throw error;
+      console.log('Inserting row:', row);
 
-      status.textContent = '✓ Submitted. Redirecting to map…';
+      // 3. Insert into the sightings table
+      const { error } = await _sb.from('sightings').insert(row);
+
+      if (error) {
+        console.error('Insert error:', error);
+        throw new Error('Save failed: ' + error.message);
+      }
+
+      // 4. Success!
       status.style.color = 'var(--forest)';
-      setTimeout(() => { window.location.href = 'map.html'; }, 900);
+      status.textContent = '✓ Submitted. Thank you!';
+      btn.textContent    = 'Submitted ✓';
+
+      // Reset form after a moment
+      setTimeout(() => {
+        document.getElementById('sightingForm').reset();
+        document.getElementById('birdPhotoLabel').textContent   = 'Click to upload a photo or screenshot';
+        document.getElementById('flowerPhotoLabel').textContent = 'Click to upload flower photo';
+        document.getElementById('birdPhotoDrop').classList.remove('has-file');
+        document.getElementById('flowerPhotoDrop').classList.remove('has-file');
+        // Reset time to now
+        const n = new Date();
+        n.setMinutes(n.getMinutes() - n.getTimezoneOffset());
+        document.getElementById('time').value = n.toISOString().slice(0, 16);
+        btn.disabled    = false;
+        btn.textContent = 'Submit sighting';
+        status.textContent = '';
+      }, 2500);
+
     } catch (err) {
-      console.error(err);
-      status.textContent = '✗ Submission failed: ' + (err.message || 'unknown error');
-      status.style.color = 'crimson';
-      submitBtn.disabled = false;
+      console.error('Submission failed:', err);
+      status.style.color = 'var(--rust)';
+      status.textContent = '✗ ' + err.message;
+      btn.disabled    = false;
+      btn.textContent = 'Submit sighting';
     }
   });
 </script>
