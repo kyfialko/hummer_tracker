@@ -6,53 +6,71 @@
   <title>PROJECT NAME</title>
   <link rel="stylesheet" href="css/style.css">
   <style>
-  .cta-wrap {
-    margin: 3rem 0 2rem;
-    text-align: center;
-  }
-  .btn-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-family: var(--font-display);
-    font-size: clamp(1.5rem, 4vw, 2.25rem);
-    font-weight: 500;
-    letter-spacing: -0.01em;
-    padding: 1.25rem 2.5rem;
-    background: var(--rust);
-    color: var(--paper);
-    text-decoration: none;
-    border: 2px solid var(--rust);
-    box-shadow: 0 6px 0 var(--ink);
-    transition: all 0.15s ease;
-  }
-  .btn-cta:hover {
-    background: #c95a30;
-    color: var(--paper);
-    transform: translateY(2px);
-    box-shadow: 0 4px 0 var(--ink);
-  }
-  .btn-cta:active {
-    transform: translateY(6px);
-    box-shadow: 0 0 0 var(--ink);
-  }
-  .cta-arrow {
-    display: inline-block;
-    transition: transform 0.2s ease;
-  }
-  .btn-cta:hover .cta-arrow {
-    transform: translateX(6px);
-  }
-  .cta-secondary {
-    display: block;
-    margin-top: 1.25rem;
-    font-family: var(--font-mono);
-    font-size: 0.8rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ink-soft);
-  }
-</style>
+    .action-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin: 3rem 0 2rem;
+    }
+    .action-card {
+      background: rgba(255,255,255,0.4);
+      border: 1px solid var(--line);
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .action-card:hover {
+      box-shadow: 0 6px 20px var(--shadow);
+      transform: translateY(-2px);
+    }
+    .action-card .icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .action-card h2 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin: 0 0 0.5rem;
+    }
+    .action-card p {
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+      margin: 0 auto 1.5rem;
+      max-width: 30ch;
+    }
+    .btn-cta {
+      display: inline-block;
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 500;
+      padding: 1rem 2rem;
+      background: var(--rust);
+      color: var(--paper);
+      text-decoration: none;
+      border: 2px solid var(--rust);
+      box-shadow: 0 4px 0 var(--ink);
+      transition: all 0.15s ease;
+    }
+    .btn-cta:hover {
+      background: #c95a30;
+      color: var(--paper);
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 var(--ink);
+    }
+    .btn-cta:active {
+      transform: translateY(4px);
+      box-shadow: 0 0 0 var(--ink);
+    }
+    .btn-cta-forest {
+      background: #6b7a4f;
+      border-color: #6b7a4f;
+    }
+    .btn-cta-forest:hover {
+      background: #5a6943;
+      color: var(--paper);
+    }
+  </style>
 </head>
 <body>
 
@@ -64,8 +82,7 @@
     </div>
     <ul class="nav-links">
       <li><a href="index.html">Home</a></li>
-      <li><a href="submit.html">Submit Sighting</a></li>
-      <li><a href="map.html">Map</a></li>
+      <li><a href="map.html">Live Map</a></li>
       <li><a href="birds.html">Meet the Birds</a></li>
       <li><a href="team.html">The Team</a></li>
     </ul>
@@ -75,24 +92,37 @@
 <main class="container-narrow">
   <section class="page-header">
     <div class="page-eyebrow">Field Season 2026 · vol. I</div>
-    <h1 class="page-title">Overview.</h1>
-    <p class="page-lede">We want to understand how hummingbirds are interacting with their environment: where do they go, how do they spend their time and what resources are important to them? We need your help! </p>
+    <h1 class="page-title">A <em>collective</em> notebook for<br>the station's hummingbirds.</h1>
+    <p class="page-lede">Every observation a member of the station logs here helps us build a picture of how hummingbirds move through Gothic this summer.</p>
   </section>
 
-<div class="cta-wrap">
-  <a href="submit.html" class="btn-cta">
-    Log a Sighting
-    <span class="cta-arrow">→</span>
-  </a>
-  <a href="map.html" class="cta-secondary">or view the map</a>
-</div>
-  
-  <h2>How it works</h2>
-  <p>DESCRIPTION. Open <a href="submit.html">Submit Sighting</a>, description. Your pin appears on the <a href="map.html">Live Map
-  We will use this data to groundtruth our radio-tag data and gain insight to what flowers hummingbirds are using. </a>.</p>
+  <div class="action-grid">
+
+    <div class="action-card">
+      <div class="icon">🌸</div>
+      <h2>Log a Foraging Event</h2>
+      <p>Saw a hummingbird visiting a flower or feeder? Tell us what, where, and when.</p>
+      <a href="log-foraging.html" class="btn-cta">Log Foraging →</a>
+    </div>
+
+    <div class="action-card">
+      <div class="icon">📡</div>
+      <h2>Log a Radio-Tag Sighting</h2>
+      <p>Spotted a tagged bird? We need to know where and when.</p>
+      <a href="log-radiotag.html" class="btn-cta btn-cta-forest">Log Tag Sighting →</a>
+    </div>
+
+  </div>
 
   <div class="divider-orn">· · ·</div>
 
+  <h2>Why it matters</h2>
+  <p>The 2025–2026 winter brought unusually low snowpack to the East River valley, and we expect flowering phenology to shift early. Distributed sightings from the full station community give us temporal and spatial resolution no single observer can match.</p>
+
+  <p style="margin-top:1.5rem;">
+    <a href="map.html" class="btn btn-ghost">View the sightings map →</a>
+  </p>
+</main>
 
 <footer class="footer">
   Stoddard Lab · Field season 2026

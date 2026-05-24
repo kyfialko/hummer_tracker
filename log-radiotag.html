@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log a Radio-Tag Sighting</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .form-embed-wrap {
+      margin-top: 2rem;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: 0 4px 20px var(--shadow);
+      overflow: hidden;
+    }
+    .form-embed-wrap iframe {
+      display: block;
+      width: 100%;
+      height: 80vh;
+      min-height: 600px;
+      border: none;
+    }
+    .form-alt {
+      margin-top: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+      text-align: center;
+    }
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      color: var(--ink-soft);
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      PROJECT NAME
+      <small></small>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="map.html">Live Map</a></li>
+      <li><a href="birds.html">Meet the Birds</a></li>
+      <li><a href="team.html">The Team</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="container-narrow">
+  <a href="index.html" class="back-link">← Back to home</a>
+
+  <section class="page-header" style="padding-top:1rem;">
+    <div class="page-eyebrow">📡 Radio-tag sighting</div>
+    <h1 class="page-title">Log a <em>tag</em> sighting.</h1>
+    <p class="page-lede">Spotted a radio-tagged bird? We need to know where and when. That's it — quick and simple.</p>
+  </section>
+
+  <!-- ============================================================
+       GOOGLE FORM EMBED
+       Replace YOUR_RADIOTAG_FORM_ID below.
+
+       Your form URL looks like:
+         https://docs.google.com/forms/d/e/XXXXXXXXX/viewform
+       Copy the XXXXXXXXX part into the placeholder.
+       ============================================================ -->
+
+  <div class="form-embed-wrap">
+    <iframe
+      src="https://docs.google.com/forms/d/e/1FAIpQLSesRqyncpXbFvvJb6G2fS271SxU-ZR7Y8dgaYTu8G1_6WfWfg/viewform?embedded=true"
+      loading="lazy"
+      title="Radio-tag sighting form">
+    </iframe>
+  </div>
+
+  <p class="form-alt">
+    Form not loading? <a href="https://docs.google.com/forms/d/e/1FAIpQLSesRqyncpXbFvvJb6G2fS271SxU-ZR7Y8dgaYTu8G1_6WfWfg/viewform" target="_blank">Open in a new tab →</a>
+  </p>
+
+</main>
+
+<footer class="footer">
+  Stoddard Lab · Field season 2026
+</footer>
+
+</body>
+</html>

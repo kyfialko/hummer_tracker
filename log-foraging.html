@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Log a Foraging Event</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      margin: 2rem 0 3rem;
+    }
+    .option-card {
+      background: rgba(255,255,255,0.4);
+      border: 1px solid var(--line);
+      padding: 2rem;
+      transition: all 0.2s;
+    }
+    .option-card:hover {
+      box-shadow: 0 6px 20px var(--shadow);
+      transform: translateY(-2px);
+    }
+    .option-card .icon {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+    }
+    .option-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin: 0 0 0.5rem;
+    }
+    .option-card p {
+      font-size: 0.9rem;
+      color: var(--ink-soft);
+      margin-bottom: 1.25rem;
+    }
+    .option-card .btn { width: 100%; text-align: center; }
+
+    .form-embed-wrap {
+      margin-top: 2rem;
+      border: 1px solid var(--line);
+      background: #fff;
+      box-shadow: 0 4px 20px var(--shadow);
+      overflow: hidden;
+      display: none;
+    }
+    .form-embed-wrap.active { display: block; }
+    .form-embed-wrap iframe {
+      display: block;
+      width: 100%;
+      height: 80vh;
+      min-height: 600px;
+      border: none;
+    }
+    .form-alt {
+      margin-top: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--ink-soft);
+      text-align: center;
+      display: none;
+    }
+    .form-alt.active { display: block; }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      color: var(--ink-soft);
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">
+      PROJECT NAME
+      <small></small>
+    </div>
+    <ul class="nav-links">
+      <li><a href="index.html">Home</a></li>
+      <li><a href="map.html">Live Map</a></li>
+      <li><a href="birds.html">Meet the Birds</a></li>
+      <li><a href="team.html">The Team</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main class="container-narrow">
+  <a href="index.html" class="back-link">← Back to home</a>
+
+  <section class="page-header" style="padding-top:1rem;">
+    <div class="page-eyebrow">🌸 Foraging event</div>
+    <h1 class="page-title">Log a <em>foraging</em> event.</h1>
+    <p class="page-lede">Choose whichever is easiest for you. Either way, the data reaches us.</p>
+  </section>
+
+  <!-- Two options -->
+  <div class="option-grid" id="optionGrid">
+
+    <div class="option-card">
+      <div class="icon">📝</div>
+      <h3>Input Data</h3>
+      <p>Fill out species, location, time, flower, and other details manually.</p>
+      <button class="btn" onclick="showForm('data')">Open form →</button>
+    </div>
+
+    <div class="option-card">
+      <div class="icon">📷</div>
+      <h3>Upload Photo</h3>
+      <p>Just upload a screenshot of your GPS/time and a photo of the flower. We'll extract the details.</p>
+      <button class="btn" onclick="showForm('photo')">Upload photos →</button>
+    </div>
+
+  </div>
+
+  <!-- ============================================================
+       GOOGLE FORM EMBEDS
+       Replace YOUR_DATA_FORM_ID and YOUR_PHOTO_FORM_ID below.
+
+       Your form URLs look like:
+         https://docs.google.com/forms/d/e/XXXXXXXXX/viewform
+       Copy the XXXXXXXXX part into the placeholders.
+       ============================================================ -->
+
+  <!-- Data entry form -->
+  <div class="form-embed-wrap" id="dataForm">
+    <iframe
+      src="https://docs.google.com/forms/d/e/1FAIpQLSfq4izbbv9uYeT6gS7XA7PLvQdjOLWtvXdKyXMG9V09MpFiMA/viewform?embedded=true"
+      loading="lazy"
+      title="Foraging event data entry form">
+    </iframe>
+  </div>
+  <p class="form-alt" id="dataFormAlt">
+    Form not loading? <a href="https://docs.google.com/forms/d/e/1FAIpQLSfq4izbbv9uYeT6gS7XA7PLvQdjOLWtvXdKyXMG9V09MpFiMA/viewform" target="_blank">Open in a new tab →</a>
+  </p>
+
+  <!-- Photo upload form -->
+  <div class="form-embed-wrap" id="photoForm">
+    <iframe
+      src="https://docs.google.com/forms/d/e/1FAIpQLScJfgsaSWBl9juUrBDY7mBp-awsWiZWOhmMPNnyo9LOZBSfIw/viewform?embedded=true"
+      loading="lazy"
+      title="Foraging event photo upload form">
+    </iframe>
+  </div>
+  <p class="form-alt" id="photoFormAlt">
+    Form not loading? <a href="https://docs.google.com/forms/d/e/1FAIpQLScJfgsaSWBl9juUrBDY7mBp-awsWiZWOhmMPNnyo9LOZBSfIw/viewform" target="_blank">Open in a new tab →</a>
+  </p>
+
+</main>
+
+<footer class="footer">
+  Stoddard Lab · Field season 2026
+</footer>
+
+<script>
+  function showForm(type) {
+    // Hide option cards
+    document.getElementById('optionGrid').style.display = 'none';
+
+    if (type === 'data') {
+      document.getElementById('dataForm').classList.add('active');
+      document.getElementById('dataFormAlt').classList.add('active');
+    } else {
+      document.getElementById('photoForm').classList.add('active');
+      document.getElementById('photoFormAlt').classList.add('active');
+    }
+  }
+</script>
+</body>
+</html>
